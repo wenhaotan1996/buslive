@@ -1,4 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = { basePath: '/munilive', output: 'standalone' };
 
-module.exports = nextConfig
+module.exports = nextConfig;
