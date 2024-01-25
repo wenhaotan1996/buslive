@@ -34,14 +34,38 @@ export async function getRouteInfo(
     stopsInfo[stop.id] = stop;
   });
 
+  const filteredDirections = route.directions
+    .filter(({ useForUi }) => useForUi)
+    .map((direction) => {
+      const [, dir, varient] = direction.id.split('_');
+      return {
+        ...direction,
+        dir,
+        varient,
+      };
+    });
+
+  const varients: { [key: string]: string[] } = {};
+  const highestVarients: { [key: string]: string } = {};
+
+  filteredDirections.forEach(({ dir, varient }) => {
+    if (!(dir in varients)) varients[dir] = [];
+    varients[dir].push(varient);
+  });
+
+  Object.keys(varients).forEach((key) => {
+    varients[key].sort();
+    highestVarients[key] = varients[key][varients[key].length - 1];
+  });
+
   return {
     agency,
     boundingBox: route.boundingBox,
     color: route.color,
     id: route.id,
     title: route.title,
-    directions: route.directions
-      .filter(({ useForUi }) => useForUi)
+    directions: filteredDirections
+      .filter(({ dir, varient }) => varient === highestVarients[dir])
       .map(({ id, name, shortName, stops }) => ({
         id,
         name,
